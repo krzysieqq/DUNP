@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${CI_REGISTRY:-localhost}:${RELEASE_VERSION:-local}
+    command: ./entrypoint.sh
+    env_file: ../envs/.env.${ENVIRONMENT:-local}
+    restart: always
+    volumes:
+      - static_files:/code/static/
+      - media_files:/code/media/
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  web:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - static_files:/var/www/static/
+      - media_files:/var/www/media/
+    depends_on:
+      - backend
+    links:
+      - backend
+volumes:
+  postgres_data:
+  static_files:
+  media_files:

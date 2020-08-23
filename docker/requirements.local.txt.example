@@ -1,0 +1,4 @@
+black
+django-debug-toolbar
+django-extensions
+wdb

@@ -1,3 +1,13 @@
+# Local stuff
+*local*
+static_files/*
+static/certs/*
+!*.example
+
+# Pycharm
+.idea/
+.settings
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -58,8 +68,8 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
+*.sqlite3*
+*.db
 
 # Flask stuff:
 instance/
@@ -95,8 +105,7 @@ ipython_config.py
 __pypackages__/
 
 # Celery stuff
-celerybeat-schedule
-celerybeat.pid
+celerybeat*
 
 # SageMath parsed files
 *.sage.py

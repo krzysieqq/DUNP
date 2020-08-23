@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: /code/docker/entrypoint.local.sh
+    env_file: ../envs/.env.local
+    volumes:
+      - ../app/:/code/app/
+      - ../docker/:/code/docker/
+      - ../local/:/code/local/
+      - ../configs/uwsgi.ini:/code/configs/uwsgi.ini
+    links:
+      - wdb
+  web:
+    volumes:
+      - ../configs/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:80"
+  wdb:
+    image: kozea/wdb:latest
+    ports:
+      - "1984:1984"
