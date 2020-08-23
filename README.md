@@ -1,13 +1,10 @@
 # DUNP
 Docker container template using docker-compose with Django, Nginx, uWSGI and Postgres
 
-
-# Django Tutorial
-Django Tutorial (Django Poll App) for Django version 3.1 with docker, docker-compose, uwsgi and nginx.
-
 Requirements
 ------------
-In order use this template , Docker and Docker-Compose are required (docker>19.03 CE and docker-compose>1.26).
+In order use this template `bash`, `Docker` and `Docker-Compose` are required (docker>19.03 CE and docker-compose>1.26). \
+Tested only on Ubuntu-based Linux distribution.
 
 Installation
 ------------
@@ -15,31 +12,20 @@ Installation
 ##### 1. Code / Repository
 
 Repository can be cloned by one of following commands:
-* Via SSH: `git clone git@github.com:krzysieqq/django_tutorial.git`
-* Via HTTPS: `git clone https://github.com/krzysieqq/django_tutorial.git`
+* Via SSH: `git clone git@github.com:krzysieqq/DUNP.git`
+* Via HTTPS: `git clone https://github.com/krzysieqq/DUNP.git`
 
 ##### 2. Docker containers
 
-Upon cloning the repository `django-tutorial` project can be built and ran using commands:
+Upon cloning the repository `DUNP` project can be built and ran using commands:
 
-1. `./run.sh -i` to install local development components and build docker image
-2. `./run.sh -u` to start local containers with follow output or `./run.sh -u` without output
+1. `./run.sh -i` to initialize local setup and config development environment with creating new django project.
+2. `./run.sh -u` to start local containers with follow output or `./run.sh -u` without output.
 3. Optional. If you'd like to create super user account run `./run.sh -csu <password>` f.g. `./run.sh -csu admin`. Default admin username is `admin`.
-
-Script will pull and build all required docker images of `django-tutorial`, as well as run all required commands from 
-`entrypoint.local.sh` and install packages from `requirements.local.txt` used only for local development.
 
 Local web address: `http://localhost:8000/` \
 Django Admin Panel address: `http://localhost:8000/admin` \
 WDB address: `http://localhost:1984`
-    
-Tests
------
-
-Tests are executed with command in `backend` container `pytest`. if test coverage is less then 96% tests will fail.
-
-If you'd like to run tests outside container:
-`CI_REGISTRY=localhost RELEASE_VERSION=local ./check_tests.sh`
 
 Instructions
 -----
@@ -57,7 +43,7 @@ Usage (params with '*' are optional):
 ./run.sh create_superuser|-csu <password>            -> Create default super user
 ./run.sh down|-dn                                    -> DOWN (stop and remove) containers
 ./run.sh downv|-dnv                                  -> DOWN (stop and remove with volumes) containers
-./run.sh init|-i <project name> <django version*>    -> Initial setup and config all environment and django project
+./run.sh init|-i <project name> <django version*>    -> Initial setup and config development environment with creating new django project
 ./run.sh help|-h                                     -> Show this help message
 ./run.sh logs|-l <params*>                           -> LOGS from ALL containers
 ./run.sh logsf|-lf <params*>                         -> LOGS from ALL containers with follow option

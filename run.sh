@@ -1,11 +1,11 @@
 #!/bin/bash
-# Credits for: Krzysieqq (https://github.com/krzysieqq/DUNP/)
-# Setup Main Container for Project
+# Credits for: Krzysieqq (https://github.com/krzysieqq/DUNP)
 set -e
 
+# Setup Main Container for Project
 MAIN_CONTAINER=backend
 PROJECT_NAME=
-ADDITIONAL_DOCKER_COMPOSE_PARAMS="-f ./docker/docker-compose.local.yml"
+#ADDITIONAL_DOCKER_COMPOSE_PARAMS="-f ./docker/docker-compose.local.yml"
 LOCAL_FILES="
 ./envs/.env.local.example
 ./docker/docker-compose.local.yml.example
@@ -29,7 +29,7 @@ case $1 in
   echo "./run.sh create_superuser|-csu <password>            -> Create default super user"
   echo "./run.sh down|-dn                                    -> DOWN (stop and remove) containers"
   echo "./run.sh downv|-dnv                                  -> DOWN (stop and remove with volumes) containers"
-  echo "./run.sh init|-i <project name> <django version*>    -> Initial setup and config all environment and django project"
+  echo "./run.sh init|-i <project name> <django version*>    -> Initial setup and config development environment with creating new django project"
   echo "./run.sh help|-h                                     -> Show this help message"
   echo "./run.sh logs|-l <params*>                           -> LOGS from ALL containers"
   echo "./run.sh logsf|-lf <params*>                         -> LOGS from ALL containers with follow option"
