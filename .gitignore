@@ -1,7 +1,6 @@
 # Local stuff
 *local*
 static_files/*
-static/certs/*
 !*.example
 
 # Pycharm

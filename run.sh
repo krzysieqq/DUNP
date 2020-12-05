@@ -7,14 +7,28 @@ MAIN_CONTAINER=backend
 PROJECT_NAME=
 #ADDITIONAL_DOCKER_COMPOSE_PARAMS="-f ./docker/docker-compose.local.yml"
 LOCAL_FILES="
-./envs/.env.local.example
+./configs/uwsgi.ini.example
 ./docker/docker-compose.local.yml.example
 ./docker/entrypoint.local.sh.example
-./docker/requirements.local.txt.example"
+./docker/requirements.local.txt.example
+./envs/.env.local.example"
 
 
 function compose() {
   CI_REGISTRY=localhost RELEASE_VERSION=local docker-compose -f ./docker/docker-compose.yml $ADDITIONAL_DOCKER_COMPOSE_PARAMS -p $PROJECT_NAME $@
+}
+
+function setup_local_files() {
+  if [ ! -f "./configs/uwsgi.ini" ]; then
+    for f in $LOCAL_FILES
+      do
+        cp "$f" "${f::${#f}-8}"
+      done
+    sed -i '1,/PROJECT_NAME=/{x;/first/s///;x;s/PROJECT_NAME=/PROJECT_NAME='$1'/;}' ./run.sh
+    sed -i '1,/module=/{x;/first/s///;x;s/module=/module='$1'.wsgi:application/;}' ./configs/uwsgi.ini
+    sed -i '1,/DJANGO_SETTINGS_MODULE=/{x;/first/s///;x;s/DJANGO_SETTINGS_MODULE=/DJANGO_SETTINGS_MODULE='$1'.settings/;}' ./envs/.env.local
+    sed -i'' -e '1,/ADDITIONAL_DOCKER_COMPOSE_PARAMS/{x;/first/s///;x;s/#ADDITIONAL_DOCKER_COMPOSE_PARAMS/ADDITIONAL_DOCKER_COMPOSE_PARAMS/;}' ./run.sh
+  fi
 }
 
 case $1 in
@@ -63,7 +77,7 @@ case $1 in
   exit
   ;;
   create_django_secret|-crs)
-  compose ${@:2}
+  echo "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())" | compose run --no-deps --rm backend django-admin shell
   exit
   ;;
   down|-dn)
@@ -76,15 +90,17 @@ case $1 in
   ;;
   init|-i)
   # Set project name in ./run.sh
-  sed -i '1,/PROJECT_NAME=/{x;/first/s///;x;s/PROJECT_NAME=/PROJECT_NAME='$2'/;}' ./run.sh
-  sed -i '1,/module=/{x;/first/s///;x;s/module=/module='$2'.wsgi:application/;}' ./configs/uwsgi.ini
-  sed -i '1,/DJANGO_SETTINGS_MODULE=/{x;/first/s///;x;s/DJANGO_SETTINGS_MODULE=/DJANGO_SETTINGS_MODULE='$2'.settings/;}' ./envs/.env.local.example
+  if [ -z "$2" ]
+    then
+      echo "Please provide project name as param to this command. ./run.sh <project_name> e.g. ./run.sh DUNP"
+    exit
+  fi
   if [ -n "$3" ]; then
     DJANGO_VERSION="==$3"
-    sed -i '1,/Django>=3.1,<3.2/{x;/first/s///;x;s/Django>=3.1,<3.2/Django=='$3'/;}' ./
+    sed -i'' -e '1,/Django>=3.1,<3.2/{x;/first/s///;x;s/Django>=3.1,<3.2/Django=='$3'/;}' ./
   fi
   docker run --rm -v $(pwd)/app:/code -w /code -e DEFAULT_PERMS=$(id -u):$(id -g) python:3-slim /bin/bash -c "pip install Django${DJANGO_VERSION} && django-admin startproject ${2} .&& chown -R \$DEFAULT_PERMS /code"
-  ./run.sh -stp
+  ./run.sh -stp $2
   exit
   ;;
   create_superuser|-csu)
@@ -137,14 +153,13 @@ case $1 in
   exit
   ;;
   setup|-stp)
-  for f in $LOCAL_FILES
-  do
-    cp "$f" "${f::-8}"
-  done
-  sed -i '1,/ADDITIONAL_DOCKER_COMPOSE_PARAMS/{x;/first/s///;x;s/#ADDITIONAL_DOCKER_COMPOSE_PARAMS/ADDITIONAL_DOCKER_COMPOSE_PARAMS/;}' ./run.sh
-  compose build
+  setup_local_files $2
+  echo "build"
+  ./run.sh build
+  echo "dsk"
   DJANGO_SECRET_KEY=$(echo "from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())" | ./run.sh -cc run --no-deps --rm backend django-admin shell)
-  sed -i 's|DJANGO_SECRET_KEY=""|DJANGO_SECRET_KEY="'"$DJANGO_SECRET_KEY"'"|' ./envs/.env.local
+  #sed -i 's|DJANGO_SECRET_KEY=""|DJANGO_SECRET_KEY="'"$DJANGO_SECRET_KEY"'"|g' ./envs/.env.local
+  sed -i'' -e 's/DJANGO_SECRET_KEY=\"\"/DJANGO_SECRET_KEY=\"'$DJANGO_SECRET_KEY'\"/g' ./envs/.env.local
   echo "Project setup completed. Now you can run containers with './run.sh' or './run.sh -u' (with live output)."
   exit
   ;;
