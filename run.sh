@@ -92,15 +92,26 @@ case $1 in
   # Set project name in ./run.sh
   if [ -z "$2" ]
     then
-      echo "Please provide project name as param to this command. ./run.sh <project_name> e.g. ./run.sh DUNP"
+      echo "Please provide project name as param to this command. ./run.sh <project_name> e.g. ./run.sh DUNP. Optional you can put Django version which you'd like to init project ./run.sh <project_name> <django_version> f.g './run.sh DUNP 4'"
     exit
   fi
+
   if [ -n "$3" ]; then
-    DJANGO_VERSION="==$3"
-    sed -i'' -e '1,/Django>=3.1,<3.2/{x;/first/s///;x;s/Django>=3.1,<3.2/Django=='$3'/;}' ./
+    DJANGO_VERSION="Django==$3"
+  else
+    DJANGO_VERSION="Django>=3.2,<3.3"
   fi
-  docker run --rm -v $(pwd)/app:/code -w /code -e DEFAULT_PERMS=$(id -u):$(id -g) python:3-slim /bin/bash -c "pip install Django${DJANGO_VERSION} && django-admin startproject ${2} .&& chown -R \$DEFAULT_PERMS /code"
-  ./run.sh -stp $2
+  # Add django version to requirements 
+  echo "${DJANGO_VERSION}" | cat - ./docker/requirements.txt > temp_req && mv temp_req ./docker/requirements.txt
+  # Try init Django project
+  if docker run --rm -v $(pwd)/app:/code -w /code -e DEFAULT_PERMS=$(id -u):$(id -g) python:3-slim /bin/bash -c "pip install \"$DJANGO_VERSION\" && django-admin startproject ${2} .&& chown -R \$DEFAULT_PERMS /code" ; then
+    # Command succeeded
+    ./run.sh -stp $2
+  else
+    # Command failed
+    sed "/${DJANGO_VERSION}/d" ./docker/requirements.txt > temp_req && mv temp_req ./docker/requirements.txt
+  fi 
+  
   exit
   ;;
   create_superuser|-csu)

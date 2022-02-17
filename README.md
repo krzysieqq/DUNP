@@ -4,24 +4,26 @@ Docker container template using docker-compose with Django, Nginx, uWSGI and Pos
 Requirements
 ------------
 In order use this template `bash`, `Docker` and `Docker-Compose` are required (docker>19.03 CE and docker-compose>1.26). \
-Tested only on Ubuntu-based Linux distribution.
+Tested only on Ubuntu-based Linux distribution but should work on MacOS
 
-Installation
+Initialization new custom project
 ------------
 
-##### 1. Code / Repository
+##### 1. Clone repo
 
 Repository can be cloned by one of following commands:
-* Via SSH: `git clone git@github.com:krzysieqq/DUNP.git`
-* Via HTTPS: `git clone https://github.com/krzysieqq/DUNP.git`
+* Via SSH: `git clone git@github.com:krzysieqq/DUNP.git <your_project_name>`
+* Via HTTPS: `git clone https://github.com/krzysieqq/DUNP.git <your_project_name>`
 
 ##### 2. Docker containers
 
-Upon cloning the repository `DUNP` project can be built and ran using commands:
+Upon cloning the repository to init your project you should run commands below:
 
-1. `./run.sh -i` to initialize local setup and config development environment with creating new django project.
+1. `./run.sh -i <your_project_name>` to initialize local setup and config development environment with creating new django project. Remember that `<your_project_name>` should follow [PEP-8 - Package and Module Names](https://www.python.org/dev/peps/pep-0008/#package-and-module-names) convention.
+    - Optionally you could give your Django version to init project by running command `./run.sh -i <your_project_name> <django_version>` f.g. `./run.sh -i foo_bar 4.0`
 2. `./run.sh -u` to start local containers with follow output or `./run.sh -u` without output.
 3. Optional. If you'd like to create super user account run `./run.sh -csu <password>` f.g. `./run.sh -csu admin`. Default admin username is `admin`.
+4. You can delete original `.git` folder (`rm -rf .git`) and init your repository to start develop project.
 
 Local web address: `http://localhost:8000/` \
 Django Admin Panel address: `http://localhost:8000/admin` \
